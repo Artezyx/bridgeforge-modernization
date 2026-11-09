@@ -40,7 +40,9 @@ class CustomerApiTest {
     void registerThenReadModernCustomer() throws Exception {
         mvc.perform(post("/api/v1/customers")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{"id":501,"fullName":"Camila Torres","email":"camila@example.org"}"))
+             
+.content("{\"id\":501,\"fullName\":\"Camila Torres\",\"email\":\"camila@example.org\"}"))
+
             .andExpect(status().isCreated());
         mvc.perform(get("/api/v1/customers/501"))
             .andExpect(status().isOk())
@@ -67,7 +69,7 @@ class CustomerApiTest {
     void rejectInvalidRegistrationAndMissingCustomer() throws Exception {
         mvc.perform(post("/api/v1/customers")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{"id":-1,"fullName":"","email":"invalid"}"))
+               .content("{\"id\":-1,\"fullName\":\"\",\"email\":\"invalid\"}"))
             .andExpect(status().isBadRequest());
         mvc.perform(get("/api/v1/customers/77777"))
             .andExpect(status().isNotFound());
