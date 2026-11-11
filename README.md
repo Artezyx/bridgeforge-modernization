@@ -1,12 +1,12 @@
 # BridgeForge
 ### Legacy Modernization & Customer Service
 
-BridgeForge is a **Java 21 + Spring Boot 3.5** service that gradually moves customer records from a legacy HTTP API into PostgreSQL. The service uses a **Strangler pattern**: requests first read the new database, fall back to the legacy system when allowed, and persist converted records along with transactional outbox events.
+BridgeForge is a **Java 21 + Spring Boot 3.5** service that gradually moves customer records from a legacy HTTP API into PostgreSQL. The service uses a **Strangler pattern**: read requests use the modern database; administrators explicitly import missing legacy records with POST, persisting converted records and transactional outbox events.
 
 ## Features
 
 - Modern customer REST API with Bean Validation, JPA/Hibernate and optimistic locking.
-- Legacy `GET /customers/{id}` adapter, on-demand customer import and deterministic provenance (`X-Data-Origin`).
+- Legacy `GET /customers/{id}` adapter, admin-triggered customer import and deterministic provenance (`X-Data-Origin`).
 - PostgreSQL schema migrations with Flyway; unique customer email and legacy identifier constraints.
 - Transactional outbox: customer creation/import and event creation commit together.
 - Scheduled webhook delivery with retries and bounded attempts (5); optional integration URL.
@@ -39,7 +39,7 @@ curl -u portfolio-admin:"<strong-local-password>" -X POST http://localhost:8082/
 curl -u portfolio-admin:"<strong-local-password>" http://localhost:8082/api/v1/customers/501
 ```
 
-When `LEGACY_ENABLED=true` and `LEGACY_URL` points at an operational legacy service, a missing customer is obtained from `GET {LEGACY_URL}/customers/{id}` and stored. Set `OUTBOX_WEBHOOK_URL` to a trusted receiver to deliver outbox events; without it, events remain queued rather than being discarded.
+When `LEGACY_ENABLED=true` and `LEGACY_URL` points at an operational legacy service, an authorized admin POST to `/api/v1/migrations/customers/{id}` imports a missing customer from `GET {LEGACY_URL}/customers/{id}` and stores it. Set `OUTBOX_WEBHOOK_URL` to a trusted receiver to deliver outbox events; without it, events remain queued rather than being discarded.
 
 ## Test
 
