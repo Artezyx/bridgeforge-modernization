@@ -20,7 +20,7 @@ Requirements: Java 21, Maven 3.6.3+, Docker (or PostgreSQL).
 ```bash
 # Set DB_PASSWORD to a strong local value (see .env.template)
 docker compose up -d
-mvn spring-boot:run
+BRIDGEFORGE_ADMIN_PASSWORD="<strong-local-password>" mvn spring-boot:run
 ```
 
 Default server: `http://localhost:8082`.
@@ -28,7 +28,7 @@ Default server: `http://localhost:8082`.
 ### Create a customer
 
 ```bash
-curl -X POST http://localhost:8082/api/v1/customers \
+curl -u portfolio-admin:"<strong-local-password>" -X POST http://localhost:8082/api/v1/customers \
   -H "Content-Type: application/json" \
   -d '{"id":501,"fullName":"Camila Torres","email":"camila@example.org"}'
 ```
@@ -36,7 +36,7 @@ curl -X POST http://localhost:8082/api/v1/customers \
 ### Retrieve a migrated customer
 
 ```bash
-curl http://localhost:8082/api/v1/customers/501
+curl -u portfolio-admin:"<strong-local-password>" http://localhost:8082/api/v1/customers/501
 ```
 
 When `LEGACY_ENABLED=true` and `LEGACY_URL` points at an operational legacy service, a missing customer is obtained from `GET {LEGACY_URL}/customers/{id}` and stored. Set `OUTBOX_WEBHOOK_URL` to a trusted receiver to deliver outbox events; without it, events remain queued rather than being discarded.
@@ -57,3 +57,8 @@ mvn verify
 | POST | `/api/v1/migrations/customers/{id}` | Force import/lookup operation |
 
 Migration and reliability assumptions are described in [ARCHITECTURE.md](ARCHITECTURE.md).
+
+
+## Authorization / performance hardening
+
+See [SECURITY_AND_LOAD.md](docs/SECURITY_AND_LOAD.md) for fail-closed credentials, role-based checks, negative tests and opt-in load testing.

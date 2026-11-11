@@ -5,6 +5,9 @@ import dev.bridgeforge.legacy.LegacyGateway;
 import dev.bridgeforge.repository.CustomerRepository;
 import dev.bridgeforge.repository.OutboxRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.test.context.support.WithMockUser;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,9 +30,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     "spring.datasource.password=",
     "spring.jpa.hibernate.ddl-auto=validate",
     "legacy.enabled=false",
-    "outbox.webhook-url="
+    "outbox.webhook-url=",
+    "BRIDGEFORGE_ADMIN_PASSWORD=local-ci-admin-password-not-production"
 })
 @AutoConfigureMockMvc
+@WithMockUser(roles = {"ADMIN", "READER"})
 class CustomerApiTest {
     @Autowired MockMvc mvc;
     @Autowired CustomerRepository customers;
@@ -82,5 +87,26 @@ class CustomerApiTest {
                 .content(payload)).andExpect(status().isCreated());
         mvc.perform(post("/api/v1/customers").contentType(MediaType.APPLICATION_JSON)
                 .content(payload)).andExpect(status().isConflict());
+    }
+    @Test
+    void rejectsUnauthenticatedRequests() throws Exception {
+        mvc.perform(get("/api/v1/customers/12345").with(anonymous()))
+            .andExpect(status().isUnauthorized());
+        mvc.perform(post("/api/v1/customers").with(anonymous())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\\"id\\":1,\\"fullName\\":\\"Test\\",\\"email\\":\\"t@example.org\\"}"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void readerMayReadButCannotWriteOrTriggerMigration() throws Exception {
+        mvc.perform(get("/api/v1/customers/888888").with(user("auditor").roles("READER")))
+            .andExpect(status().isNotFound());
+        mvc.perform(post("/api/v1/customers").with(user("auditor").roles("READER"))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\\"id\\":2,\\"fullName\\":\\"Test\\",\\"email\\":\\"r@example.org\\"}"))
+            .andExpect(status().isForbidden());
+        mvc.perform(post("/api/v1/migrations/customers/2").with(user("auditor").roles("READER")))
+            .andExpect(status().isForbidden());
     }
 }
