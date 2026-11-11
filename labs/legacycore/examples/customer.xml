@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:crm="urn:legacy:crm">
+  <soap:Body>
+    <crm:GetCustomerResponse>
+      <crm:Customer>
+        <crm:Id>501</crm:Id>
+        <crm:FullName>Camila Torres</crm:FullName>
+        <crm:Email>camila@example.org</crm:Email>
+      </crm:Customer>
+    </crm:GetCustomerResponse>
+  </soap:Body>
+</soap:Envelope>
