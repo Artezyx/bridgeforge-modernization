@@ -27,6 +27,12 @@ public class CustomerService {
         this.json = json;
     }
 
+    @Transactional(readOnly = true)
+    public LookupResult readModern(Long id) {
+        var customer = customers.findById(id).orElseThrow(() -> new CustomerNotFound(id));
+        return new LookupResult(customer, "modern");
+    }
+
     @Transactional
     public LookupResult lookup(Long id) {
         var found = customers.findById(id);
