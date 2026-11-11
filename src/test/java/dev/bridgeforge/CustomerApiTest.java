@@ -94,7 +94,7 @@ class CustomerApiTest {
             .andExpect(status().isUnauthorized());
         mvc.perform(post("/api/v1/customers").with(anonymous())
             .contentType(MediaType.APPLICATION_JSON)
-            .content("{\\"id\\":1,\\"fullName\\":\\"Test\\",\\"email\\":\\"t@example.org\\"}"))
+            .content("{\"id\":1,\"fullName\":\"Test\",\"email\":\"t@example.org\"}"))
             .andExpect(status().isUnauthorized());
     }
 
@@ -104,7 +104,7 @@ class CustomerApiTest {
             .andExpect(status().isNotFound());
         mvc.perform(post("/api/v1/customers").with(user("auditor").roles("READER"))
             .contentType(MediaType.APPLICATION_JSON)
-            .content("{\\"id\\":2,\\"fullName\\":\\"Test\\",\\"email\\":\\"r@example.org\\"}"))
+            .content("{\"id\":2,\"fullName\":\"Test\",\"email\":\"r@example.org\"}"))
             .andExpect(status().isForbidden());
         mvc.perform(post("/api/v1/migrations/customers/2").with(user("auditor").roles("READER")))
             .andExpect(status().isForbidden());
