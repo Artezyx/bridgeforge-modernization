@@ -38,7 +38,7 @@ public class CustomerController {
 
     @GetMapping("/customers/{id}")
     public ResponseEntity<CustomerView> lookup(@PathVariable @Positive Long id) {
-        var found = service.lookup(id);
+        var found = service.readModern(id);
         return ResponseEntity.ok().header("X-Data-Origin", found.origin())
             .body(CustomerView.from(found.customer()));
     }
