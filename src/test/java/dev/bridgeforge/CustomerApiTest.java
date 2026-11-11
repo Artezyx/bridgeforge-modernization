@@ -62,7 +62,7 @@ class CustomerApiTest {
     void migrateLegacyRecordAndPersistIt() throws Exception {
         when(legacy.fetch(902L)).thenReturn(Optional.of(
             new LegacyCustomer(902L, "Marco Vega", "marco@example.org")));
-        mvc.perform(get("/api/v1/customers/902"))
+        mvc.perform(post("/api/v1/migrations/customers/902"))
             .andExpect(status().isOk())
             .andExpect(header().string("X-Data-Origin", "legacy-imported"));
         mvc.perform(get("/api/v1/customers/902"))
