@@ -1,0 +1,25 @@
+name: LegacyCore SOAP adapter tests
+on:
+  push:
+    paths:
+      - 'labs/legacycore/**'
+      - '.github/workflows/legacycore-ci.yml'
+  pull_request:
+    paths:
+      - 'labs/legacycore/**'
+      - '.github/workflows/legacycore-ci.yml'
+jobs:
+  adapter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile typed SOAP adapter
+        run: dotnet build labs/legacycore/LegacyCore/LegacyCore.csproj --configuration Debug
+      - name: Verify valid and unsafe SOAP fixtures
+        run: python -m unittest discover -s labs/legacycore/tests -v
