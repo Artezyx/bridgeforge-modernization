@@ -1,7 +1,7 @@
 # BridgeForge security and performance verification
 
-The API now denies unauthenticated requests. A read-only account can GET
-customers; only ADMIN may POST registrations or migrations. Health remains
+The API now denies unauthenticated requests. A read-only account can GET only already-migrated customers without side effects;
+only ADMIN may POST registrations or legacy migrations. Health remains
 public to allow container probes. The example uses stateless HTTP Basic over
 TLS for local CLI demonstration; do **not** deploy it without HTTPS.
 
